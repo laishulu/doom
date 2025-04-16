@@ -1,0 +1,19 @@
+;;(toggle-debug-on-error)
+(load! "encoding")
+(load! "ui")
+(load! "mouse")
+(load! "tmux")
+(load! "edit")
+(load! "tree")
+(load! "evil")
+(load! "note")
+(load! "languages/init")
+(load! "ai")
+
+(defun ke ()
+  "kill-emacs"
+  (interactive)
+  (kill-emacs))
+
+(when (file-exists-p "~/.site/init.el")
+  (load-file "~/.site/init.el"))
