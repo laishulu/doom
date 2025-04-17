@@ -6,31 +6,21 @@
         (cons '(:eval . "never")
               (assq-delete-all :eval org-babel-default-header-args)))
 
-  (defun my/org-download-clipboard-or-file ()
-    "Paste image from clipboard or attach a file as an Org attachment."
+  (defun my/org-attach-clipboard ()
+    "Attach image or file path from clipboard."
     (interactive)
     (require 'org-download)
     (require 'org-attach)
-    (let* ((clipboard-content (gui-selection-value))
-           (file-path (when (and clipboard-content
-                                 (file-exists-p clipboard-content))
-                      clipboard-content)))
-      (if file-path
-          ;; Handle file attachment (like drag-and-drop)
-          (let ((file-name (file-name-nondirectory file-path)))
-            (org-attach-attach file-path nil 'cp)
-            ;; Insert attachment link
-            (insert (format "[[attachment:%s]]" file-name)))
-        ;; Handle clipboard image (e.g., screenshot)
-        (org-download-clipboard))))
+    (let* ((clipboard-content (gui-selection-value)))
+      (if clipboard-content
+        (+org/attach-file-and-insert-link clipboard-content))
+      (org-download-clipboard)))
 
   ;; Keybindings
   (map! :map org-mode-map
-        :n "p" #'my/org-download-clipboard-or-file
-        (:when (eq system-type 'darwin)
-         :i "s-v" #'my/org-download-clipboard-or-file)
-        (:when (not (eq system-type 'darwin))
-         :i "C-v" #'my/org-download-clipboard-or-file)))
+        :localleader
+        (:prefix "a"
+                 "p" #'my/org-attach-clipboard)))
 
 (after! org-attach
   (setq org-attach-id-dir "./.attach/")
@@ -47,6 +37,7 @@
                 "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
                 "\\)"))
   (setq deft-directory org-roam-directory)
+
   (defun my/deft-parse-title (file contents)
     "Parse the given FILE and CONTENTS and determine the title.
   If `deft-use-filename-as-title' is nil, the title is taken to
@@ -79,15 +70,18 @@
   (setq org-noter-auto-save-last-location t)
   ;; Use default title rather than asking for user input
   (setq org-noter-insert-note-no-questions t)
+
   ;; Function to derive notes filename from PDF
   (defun my/org-noter-default-notes-file (document-path)
     "Return the notes filename based on the PDF's name."
     (let ((pdf-name (file-name-nondirectory document-path)))
       (concat (file-name-sans-extension pdf-name) ".org")))
+
   ;; Function to set search path to PDF's directory
   (defun my/org-noter-set-notes-path (document-path)
     "Return the directory of the PDF as the notes search path."
     (list (file-name-directory document-path)))
+
   ;; Hook to dynamically set variables when org-noter starts
   (defun my/org-noter-setup ()
     "Set notes filename and search path dynamically."
@@ -96,6 +90,7 @@
                   (my/org-noter-default-notes-file org-noter--doc-file))
       (setq-local org-noter-notes-search-path
                   (my/org-noter-set-notes-path org-noter--doc-file))))
+
   ;; Add hook to run setup when org-noter starts
   (add-hook 'org-noter--start-hook #'my/org-noter-setup))
 
@@ -107,14 +102,25 @@
                     :n "C-d" #'pdf-view-scroll-up-or-next-page
                     :n "C-f" #'pdf-view-next-page-command
                     :n "C-b" #'pdf-view-previous-page-command
-                    :n "m" #'pdf-annot-add-highlight-markup-annotation))))
+                    :n "c" #'pdf-annot-add-highlight-markup-annotation))))
 
 (after! (pdf-tools org-noter)
+  (setq org-noter-highlight-selected-text t)
+
+  (defun my/org-noter-kill-session (&optional session)
+    (interactive)
+    (if (and org-noter--session (not session))
+        (setq session org-noter--session))
+    (when session
+      (let* ((doc-buffer (org-noter--session-doc-buffer session)))
+        (save-buffer doc-buffer)))
+    (org-noter-kill-session session))
+
   (add-hook 'pdf-view-mode-hook
             (lambda ()
               (map! :map pdf-view-mode-map
                     :n "i" #'org-noter-insert-note
-                    :n "q" #'org-noter-kill-session))))
+                    :n "q" #'my/org-noter-kill-session))))
 
 ;; lift frequent keymap for notes
 (map! :leader
