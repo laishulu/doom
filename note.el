@@ -1,3 +1,4 @@
+;;; ../../conf/emacs/doom/ai.el -*- lexical-binding: t; -*-
 ;; never evaul code blocks unintentionally
 (after! org
   (setq org-confirm-babel-evaluate t)
@@ -5,6 +6,11 @@
   (setq org-babel-default-header-args
         (cons '(:eval . "never")
               (assq-delete-all :eval org-babel-default-header-args))))
+
+(after! org-attach
+  (setq org-attach-id-dir "./.attach/")
+  (setq org-attach-use-inheritance t)
+  (setq org-attach-dir-relative t))
 
 (defun cm/deft-parse-title (file contents)
   "Parse the given FILE and CONTENTS and determine the title.
@@ -38,7 +44,6 @@
   (setq org-journal-enable-agenda-integration t))
 
 (after! org-roam
-  (setq +org-roam-auto-backlinks-buffer t)
   (setq org-roam-capture-templates
         '(("d" "default" plain "%?"
            :target (file+head "${slug}.org"
@@ -48,5 +53,40 @@
 ;; lift frequent keymap for notes
 (map! :leader
       :desc "Open deft" "d" (general-simulate-key "SPC n d")
+      :desc "Org noter" "e" (general-simulate-key "SPC n e")
       :desc "Org journal" "j" (general-simulate-key "SPC n j")
       :desc "Org roam" "r" (general-simulate-key "SPC n r"))
+
+(add-hook 'pdf-view-mode-hook
+  (lambda ()
+    (map! :map pdf-view-mode-map
+          :n "C-u" #'pdf-view-scroll-down-or-previous-page
+          :n "C-d" #'pdf-view-scroll-up-or-next-page
+          :n "C-f" #'pdf-view-next-page-command
+          :n "C-b" #'pdf-view-previous-page-command
+          :n "i" #'org-noter-insert-note
+          :n "q" #'org-noter-kill-session
+          :n "h" #'pdf-annot-add-highlight-markup-annotation)))
+
+(after! org-noter
+  ;; Enable auto-saving of last location to reduce prompts
+  (setq org-noter-auto-save-last-location t)
+  ;; Function to derive notes filename from PDF
+  (defun my-org-noter-default-notes-file (document-path)
+    "Return the notes filename based on the PDF's name."
+    (let ((pdf-name (file-name-nondirectory document-path)))
+      (concat (file-name-sans-extension pdf-name) ".org")))
+  ;; Function to set search path to PDF's directory
+  (defun my-org-noter-set-notes-path (document-path)
+    "Return the directory of the PDF as the notes search path."
+    (list (file-name-directory document-path)))
+  ;; Hook to dynamically set variables when org-noter starts
+  (defun my-org-noter-setup ()
+    "Set notes filename and search path dynamically."
+    (when (and org-noter--doc-file org-noter--session)
+      (setq-local org-noter-default-notes-file-names
+                  (my-org-noter-default-notes-file org-noter--doc-file))
+      (setq-local org-noter-notes-search-path
+                  (my-org-noter-set-notes-path org-noter--doc-file))))
+  ;; Add hook to run setup when org-noter starts
+  (add-hook 'org-noter--start-hook #'my-org-noter-setup))
