@@ -1,11 +1,17 @@
-;;; ../../conf/emacs/doom/ai.el -*- lexical-binding: t; -*-
+;;; note.el -*- lexical-binding: t; -*-
 ;; never evaul code blocks unintentionally
 (after! org
   (setq org-confirm-babel-evaluate t)
   (setq org-babel-no-eval-on-ctrl-c-ctrl-c t)
   (setq org-babel-default-header-args
         (cons '(:eval . "never")
-              (assq-delete-all :eval org-babel-default-header-args))))
+              (assq-delete-all :eval org-babel-default-header-args)))
+  (map! :map org-mode-map
+        :n "p" #'org-download-clipboard
+        (:when (eq system-type 'darwin)
+         :i "s-v" #'org-download-clipboard)
+        (:when (not (eq system-type 'darwin))
+         :i "C-v" #'org-download-clipboard)))
 
 (after! org-attach
   (setq org-attach-id-dir "./.attach/")
@@ -71,6 +77,8 @@
 (after! org-noter
   ;; Enable auto-saving of last location to reduce prompts
   (setq org-noter-auto-save-last-location t)
+  ;; Use default title rather than asking for user input
+  (setq org-noter-insert-note-no-questions t)
   ;; Function to derive notes filename from PDF
   (defun my-org-noter-default-notes-file (document-path)
     "Return the notes filename based on the PDF's name."
