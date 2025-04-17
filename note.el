@@ -7,17 +7,30 @@
               (assq-delete-all :eval org-babel-default-header-args)))
 
   (defun my/org-attach-clipboard ()
-    "Attach image or file path from clipboard."
-    (interactive)
-    (require 'org-download)
-    (require 'org-attach)
-    (let* ((clipboard-content (gui-selection-value)))
-      (if clipboard-content
-        (+org/attach-file-and-insert-link clipboard-content))
-      (org-download-clipboard)))
+  "Attach image, file path, or URL from clipboard in Org-mode."
+  (interactive)
+  (require 'org-download)
+  (require 'org-attach)
+  (let* ((clipboard-content (gui-selection-value))
+         (file-path (when (and clipboard-content (file-exists-p clipboard-content))
+                      clipboard-content)))
+    (cond
+     ;; Handle file attachment (like drag-and-drop)
+     (file-path
+      (let ((file-name (file-name-nondirectory file-path)))
+        (org-attach-attach file-path nil 'cp)
+        ;; Insert attachment link
+        (insert (format "[[attachment:%s]]" file-name))))
+     ;; Handle URL
+     ((and clipboard-content (string-match-p "^https?://" clipboard-content))
+      (+org/attach-file-and-insert-link clipboard-content))
+     ;; Default: handle clipboard image (e.g., screenshot)
+     (t
+      (org-download-clipboard)))))
 
   ;; Keybindings
   (map! :map org-mode-map
+        :i "C-s-v" #'my/org-attach-clipboard
         :localleader
         (:prefix "a"
                  "p" #'my/org-attach-clipboard)))
