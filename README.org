@@ -1,4 +1,4 @@
 * install
 #+begin_src bash
-curl -s https://github.com/laishulu/doom/raw/refs/heads/main/scripts/install.sh | bash
+curl -s https://raw.githubusercontent.com/laishulu/doom/refs/heads/main/scripts/install.sh | bash
 #+end_src

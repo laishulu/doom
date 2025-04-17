@@ -20,6 +20,8 @@ brew install cmake libvterm
 brew install editorconfig gnu-indent global
 
 rm -rf ~/.config/doom
+rm -rf ~/.config/emacs
 mkdir -p ~/.config
-git clone https://github.com/doomemacs/doomemacs ~/.config/doom
-~/.config/doom/bin/doom install
+git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+git clone https://github.com/laishulu/doom.git ~/.config/doom
+~/.config/emacs/bin/doom install
