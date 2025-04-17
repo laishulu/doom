@@ -47,7 +47,7 @@
                 "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
                 "\\)"))
   (setq deft-directory org-roam-directory)
-  (defun cm/deft-parse-title (file contents)
+  (defun my/deft-parse-title (file contents)
     "Parse the given FILE and CONTENTS and determine the title.
   If `deft-use-filename-as-title' is nil, the title is taken to
   be the first non-empty line of the FILE.  Else the base name of the FILE is
@@ -59,7 +59,7 @@
            "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
         (deft-base-filename file))))
 
-  (advice-add 'deft-parse-title :override #'cm/deft-parse-title))
+  (advice-add 'deft-parse-title :override #'my/deft-parse-title))
 
 (after! org-journal
   (setq org-journal-date-prefix "#+TITLE: ")
@@ -99,7 +99,7 @@
   ;; Add hook to run setup when org-noter starts
   (add-hook 'org-noter--start-hook #'my/org-noter-setup))
 
-(after! (pdf-tools org-noter)
+(after! pdf-tools
   (add-hook 'pdf-view-mode-hook
             (lambda ()
               (map! :map pdf-view-mode-map
@@ -107,9 +107,14 @@
                     :n "C-d" #'pdf-view-scroll-up-or-next-page
                     :n "C-f" #'pdf-view-next-page-command
                     :n "C-b" #'pdf-view-previous-page-command
+                    :n "m" #'pdf-annot-add-highlight-markup-annotation))))
+
+(after! (pdf-tools org-noter)
+  (add-hook 'pdf-view-mode-hook
+            (lambda ()
+              (map! :map pdf-view-mode-map
                     :n "i" #'org-noter-insert-note
-                    :n "q" #'org-noter-kill-session
-                    :n "h" #'pdf-annot-add-highlight-markup-annotation))))
+                    :n "q" #'org-noter-kill-session))))
 
 ;; lift frequent keymap for notes
 (map! :leader
