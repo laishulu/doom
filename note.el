@@ -1,36 +1,41 @@
 ;;; note.el -*- lexical-binding: t; -*-
-;; never evaul code blocks unintentionally
 (after! org
   (setq org-confirm-babel-evaluate t)
   (setq org-babel-no-eval-on-ctrl-c-ctrl-c t)
   (setq org-babel-default-header-args
         (cons '(:eval . "never")
               (assq-delete-all :eval org-babel-default-header-args)))
+
+  (defun my/org-download-clipboard-or-file ()
+    "Paste image from clipboard or attach a file as an Org attachment."
+    (interactive)
+    (require 'org-download)
+    (require 'org-attach)
+    (let* ((clipboard-content (gui-selection-value))
+           (file-path (when (and clipboard-content
+                                 (file-exists-p clipboard-content))
+                      clipboard-content)))
+      (if file-path
+          ;; Handle file attachment (like drag-and-drop)
+          (let ((file-name (file-name-nondirectory file-path)))
+            (org-attach-attach file-path nil 'cp)
+            ;; Insert attachment link
+            (insert (format "[[attachment:%s]]" file-name)))
+        ;; Handle clipboard image (e.g., screenshot)
+        (org-download-clipboard))))
+
+  ;; Keybindings
   (map! :map org-mode-map
-        :n "p" #'org-download-clipboard
+        :n "p" #'my/org-download-clipboard-or-file
         (:when (eq system-type 'darwin)
-         :i "s-v" #'org-download-clipboard)
+         :i "s-v" #'my/org-download-clipboard-or-file)
         (:when (not (eq system-type 'darwin))
-         :i "C-v" #'org-download-clipboard)))
+         :i "C-v" #'my/org-download-clipboard-or-file)))
 
 (after! org-attach
   (setq org-attach-id-dir "./.attach/")
   (setq org-attach-use-inheritance t)
   (setq org-attach-dir-relative t))
-
-(defun cm/deft-parse-title (file contents)
-  "Parse the given FILE and CONTENTS and determine the title.
-  If `deft-use-filename-as-title' is nil, the title is taken to
-  be the first non-empty line of the FILE.  Else the base name of the FILE is
-  used as title."
-  (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
-    (if begin
-        (string-trim
-         (substring contents begin (match-end 0))
-         "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
-      (deft-base-filename file))))
-
-(advice-add 'deft-parse-title :override #'cm/deft-parse-title)
 
 (after! (deft org-roam)
   (setq deft-recursive t)
@@ -41,7 +46,20 @@
                 "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
                 "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
                 "\\)"))
-  (setq deft-directory org-roam-directory))
+  (setq deft-directory org-roam-directory)
+  (defun cm/deft-parse-title (file contents)
+    "Parse the given FILE and CONTENTS and determine the title.
+  If `deft-use-filename-as-title' is nil, the title is taken to
+  be the first non-empty line of the FILE.  Else the base name of the FILE is
+  used as title."
+    (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+      (if begin
+          (string-trim
+           (substring contents begin (match-end 0))
+           "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+        (deft-base-filename file))))
+
+  (advice-add 'deft-parse-title :override #'cm/deft-parse-title))
 
 (after! org-journal
   (setq org-journal-date-prefix "#+TITLE: ")
@@ -56,45 +74,46 @@
                               "#+title: ${title}\n")
            :unnarrowed t))))
 
-;; lift frequent keymap for notes
-(map! :leader
-      :desc "Open deft" "d" (general-simulate-key "SPC n d")
-      :desc "Org noter" "e" (general-simulate-key "SPC n e")
-      :desc "Org journal" "j" (general-simulate-key "SPC n j")
-      :desc "Org roam" "r" (general-simulate-key "SPC n r"))
-
-(add-hook 'pdf-view-mode-hook
-  (lambda ()
-    (map! :map pdf-view-mode-map
-          :n "C-u" #'pdf-view-scroll-down-or-previous-page
-          :n "C-d" #'pdf-view-scroll-up-or-next-page
-          :n "C-f" #'pdf-view-next-page-command
-          :n "C-b" #'pdf-view-previous-page-command
-          :n "i" #'org-noter-insert-note
-          :n "q" #'org-noter-kill-session
-          :n "h" #'pdf-annot-add-highlight-markup-annotation)))
-
 (after! org-noter
   ;; Enable auto-saving of last location to reduce prompts
   (setq org-noter-auto-save-last-location t)
   ;; Use default title rather than asking for user input
   (setq org-noter-insert-note-no-questions t)
   ;; Function to derive notes filename from PDF
-  (defun my-org-noter-default-notes-file (document-path)
+  (defun my/org-noter-default-notes-file (document-path)
     "Return the notes filename based on the PDF's name."
     (let ((pdf-name (file-name-nondirectory document-path)))
       (concat (file-name-sans-extension pdf-name) ".org")))
   ;; Function to set search path to PDF's directory
-  (defun my-org-noter-set-notes-path (document-path)
+  (defun my/org-noter-set-notes-path (document-path)
     "Return the directory of the PDF as the notes search path."
     (list (file-name-directory document-path)))
   ;; Hook to dynamically set variables when org-noter starts
-  (defun my-org-noter-setup ()
+  (defun my/org-noter-setup ()
     "Set notes filename and search path dynamically."
     (when (and org-noter--doc-file org-noter--session)
       (setq-local org-noter-default-notes-file-names
-                  (my-org-noter-default-notes-file org-noter--doc-file))
+                  (my/org-noter-default-notes-file org-noter--doc-file))
       (setq-local org-noter-notes-search-path
-                  (my-org-noter-set-notes-path org-noter--doc-file))))
+                  (my/org-noter-set-notes-path org-noter--doc-file))))
   ;; Add hook to run setup when org-noter starts
-  (add-hook 'org-noter--start-hook #'my-org-noter-setup))
+  (add-hook 'org-noter--start-hook #'my/org-noter-setup))
+
+(after! (pdf-tools org-noter)
+  (add-hook 'pdf-view-mode-hook
+            (lambda ()
+              (map! :map pdf-view-mode-map
+                    :n "C-u" #'pdf-view-scroll-down-or-previous-page
+                    :n "C-d" #'pdf-view-scroll-up-or-next-page
+                    :n "C-f" #'pdf-view-next-page-command
+                    :n "C-b" #'pdf-view-previous-page-command
+                    :n "i" #'org-noter-insert-note
+                    :n "q" #'org-noter-kill-session
+                    :n "h" #'pdf-annot-add-highlight-markup-annotation))))
+
+;; lift frequent keymap for notes
+(map! :leader
+      :desc "Open deft" "d" (general-simulate-key "SPC n d")
+      :desc "Org noter" "e" (general-simulate-key "SPC n e")
+      :desc "Org journal" "j" (general-simulate-key "SPC n j")
+      :desc "Org roam" "r" (general-simulate-key "SPC n r"))
