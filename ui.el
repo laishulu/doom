@@ -1,5 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 ;; soft wrap
 (global-visual-line-mode)
 (blink-cursor-mode)
