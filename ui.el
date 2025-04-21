@@ -1,6 +1,12 @@
 ;;; -*- lexical-binding: t -*-
-
+;; maximize frame
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+;; bring frame to front
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (when (display-graphic-p)
+              (let ((frame (selected-frame)))
+                (select-frame-set-input-focus frame)))))
 ;; soft wrap
 (global-visual-line-mode)
 (blink-cursor-mode)
@@ -24,3 +30,8 @@
 
 ;; highlight-indent-guides
 (setq highlight-indent-guides-suppress-auto-error t)
+
+;; lift frequent keymap for close window
+(map! :leader
+      :desc "Delete buffer" "k" (general-simulate-key "SPC b d")
+      :desc "Close window" "z" (general-simulate-key "SPC w c"))
