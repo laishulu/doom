@@ -12,7 +12,9 @@
 (use-package! evil-pinyin
   :after (evil)
   :init
-  (setq-default evil-pinyin-scheme 'simplified-xiaohe-all)
+  (setq-default evil-pinyin-scheme
+                ;; 采用小鹤双拼码表
+                'simplified-xiaohe-all)
   :config
   (global-evil-pinyin-mode t))
 
