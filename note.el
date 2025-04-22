@@ -140,4 +140,5 @@
       :desc "Open deft" "d" (general-simulate-key "SPC n d")
       :desc "Org noter" "e" (general-simulate-key "SPC n e")
       :desc "Org journal" "j" (general-simulate-key "SPC n j")
-      :desc "Org roam" "r" (general-simulate-key "SPC n r"))
+      :desc "Org roam" "r" (general-simulate-key "SPC n r")
+      :desc "List roam" "l" #'org-roam-node-find)

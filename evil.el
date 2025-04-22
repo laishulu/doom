@@ -1,8 +1,18 @@
+;;; evil.el -*- lexical-binding: t; -*-
 (after! evil
   (setq evil-kill-on-visual-paste nil))
 
+(after! evil-multiedit
+  (map! :nv "g RET" #'evil-multiedit-toggle-or-restrict-region))
+
+(evil-define-key '(normal motion) evil-snipe-local-mode-map
+  "s" nil
+  "S" nil)
+
 (use-package! evil-pinyin
   :after (evil)
+  :init
+  (setq-default evil-pinyin-scheme 'simplified-xiaohe-all)
   :config
   (global-evil-pinyin-mode t))
 
