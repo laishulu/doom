@@ -31,7 +31,7 @@
 ;; highlight-indent-guides
 (setq highlight-indent-guides-suppress-auto-error t)
 
-;; lift frequent keymap for close window
-(map! :leader
-      :desc "Delete buffer" "k" (general-simulate-key "SPC b d")
-      :desc "Close window" "z" (general-simulate-key "SPC w c"))
+(map! :g "C-s-h" #'evil-window-left
+      :g "C-s-j" #'evil-window-down
+      :g "C-s-k" #'evil-window-up
+      :g "C-s-l" #'evil-window-right)

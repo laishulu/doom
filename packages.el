@@ -1,5 +1,4 @@
-;;; packages.el -*- lexical-binding: t; -*-
-;;; -*- no-byte-compile: t; -*-
+;;; packages.el -*- lexical-binding: t; no-byte-compile: t -*-
 (package! evil-textobj-column)
 (package! evil-textobj-line)
 (package! evil-textobj-syntax)

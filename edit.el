@@ -10,12 +10,11 @@
 (setq confirm-kill-processes nil)
 
 (use-package! sis
-  :after (evil tmux-pane)
+  :after (evil)
   :config
   (sis-ism-lazyman-config
     "com.apple.keylayout.US"
     "org.fcitx.inputmethod.Fcitx5.fcitx5")
-  (delete "C-h" sis-prefix-override-keys)
   (sis-global-respect-mode t)
   (sis-global-inline-mode t)
   (sis-global-context-mode t)
