@@ -1,3 +1,4 @@
+;;; mouse.el -*- lexical-binding: t; -*-
 (xterm-mouse-mode 1)
 
 (global-set-key (kbd "<mouse-4>") 'scroll-down-line)

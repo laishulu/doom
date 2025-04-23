@@ -1,8 +1,8 @@
+;;; config.el -*- lexical-binding: t; -*-
 ;;(toggle-debug-on-error)
 (load! "encoding")
 (load! "ui")
 (load! "mouse")
-(load! "tmux")
 (load! "edit")
 (load! "tree")
 (load! "evil")

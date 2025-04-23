@@ -1,3 +1,4 @@
+;;; encoding.el -*- lexical-binding: t; -*-
 (setq locale-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)

@@ -1,9 +1,9 @@
-;; -*- no-byte-compile: t; -*-
+;;; packages.el -*- lexical-binding: t; -*-
+;;; -*- no-byte-compile: t; -*-
 (package! evil-textobj-column)
 (package! evil-textobj-line)
 (package! evil-textobj-syntax)
 (package! evil-textobj-entire)
-(package! tmux-pane)
 (package! sis)
 (package! evil-pinyin)
 (package! term-cursor :recipe

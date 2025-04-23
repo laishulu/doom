@@ -1,3 +1,4 @@
+;;; tree.el -*- lexical-binding: t; -*-
 (map! :leader
       (:prefix "t"
         :desc "tree"            :nv "t" #'treemacs))

@@ -1,4 +1,4 @@
-;;; -*- lexical-binding: t -*-
+;;; ui.el -*- lexical-binding: t; -*-
 ;; maximize frame
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
 ;; bring frame to front

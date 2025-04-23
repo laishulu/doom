@@ -1,3 +1,4 @@
+;;; edit.el -*- lexical-binding: t; -*-
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 (setq-default standard-indent 2)

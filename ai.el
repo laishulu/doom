@@ -1,1 +1,1 @@
-;;; ../../conf/emacs/doom/ai.el -*- lexical-binding: t; -*-
+;;; ai.el -*- lexical-binding: t; -*-
