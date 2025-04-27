@@ -2,12 +2,13 @@
 (after! evil
   (setq evil-kill-on-visual-paste nil))
 
-(after! evil-multiedit
-  (map! :nv "g RET" #'evil-multiedit-toggle-or-restrict-region))
-
-(evil-define-key '(normal motion) evil-snipe-local-mode-map
-  "s" nil
-  "S" nil)
+;; fix incompatibility with org so RET can also call the command
+(defadvice! fixed-org/dwim-at-point (fn &rest args)
+  :around #'+org/dwim-at-point
+  (if (and (bound-and-true-p iedit-mode)
+           (iedit-current-occurrence-string))
+      (ignore (call-interactively #'evil-multiedit-toggle-or-restrict-region))
+    (apply fn args)))
 
 (use-package! evil-pinyin
   :after (evil)

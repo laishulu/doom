@@ -137,8 +137,43 @@
 
 ;; lift frequent keymap for notes
 (map! :leader
-      :desc "Open deft" "d" (general-simulate-key "SPC n d")
-      :desc "Org noter" "e" (general-simulate-key "SPC n e")
-      :desc "Org journal" "j" (general-simulate-key "SPC n j")
-      :desc "Org roam" "r" (general-simulate-key "SPC n r")
+      (:when (modulep! :ui deft)
+        :desc "Open deft"                   "d" #'deft)
+      (:when (modulep! :lang org +noter)
+        :desc "Org noter"                   "e" #'org-noter)
+
+      ;; should sync with the following page
+      ;; https://github.com/doomemacs/doomemacs/blob/master/modules/config/default/%2Bevil-bindings.el
+      (:when (modulep! :lang org +journal)
+        (:prefix ("j" . "journal")
+         :desc "New Entry"           "j" #'org-journal-new-entry
+         :desc "New Scheduled Entry" "J" #'org-journal-new-scheduled-entry
+         :desc "Search Forever"      "s" #'org-journal-search-forever))
+
+      ;; should sync with the following page
+      ;; https://github.com/doomemacs/doomemacs/blob/master/modules/config/default/%2Bevil-bindings.el
+      (:when (modulep! :lang org +roam2)
+        (:prefix ("r" . "roam")
+         :desc "Open random node"           "a" #'org-roam-node-random
+         :desc "Find node"                  "f" #'org-roam-node-find
+         :desc "Find ref"                   "F" #'org-roam-ref-find
+         :desc "Show graph"                 "g" #'org-roam-graph
+         :desc "Insert node"                "i" #'org-roam-node-insert
+         :desc "Capture to node"            "n" #'org-roam-capture
+         :desc "Toggle roam buffer"         "r" #'org-roam-buffer-toggle
+         :desc "Launch roam buffer"         "R" #'org-roam-buffer-display-dedicated
+         :desc "Sync database"              "s" #'org-roam-db-sync
+         (:prefix ("d" . "by date")
+          :desc "Goto previous note"        "b" #'org-roam-dailies-goto-previous-note
+          :desc "Goto date"                 "d" #'org-roam-dailies-goto-date
+          :desc "Capture date"              "D" #'org-roam-dailies-capture-date
+          :desc "Goto next note"            "f" #'org-roam-dailies-goto-next-note
+          :desc "Goto tomorrow"             "m" #'org-roam-dailies-goto-tomorrow
+          :desc "Capture tomorrow"          "M" #'org-roam-dailies-capture-tomorrow
+          :desc "Capture today"             "n" #'org-roam-dailies-capture-today
+          :desc "Goto today"                "t" #'org-roam-dailies-goto-today
+          :desc "Capture today"             "T" #'org-roam-dailies-capture-today
+          :desc "Goto yesterday"            "y" #'org-roam-dailies-goto-yesterday
+          :desc "Capture yesterday"         "Y" #'org-roam-dailies-capture-yesterday
+          :desc "Find directory"            "-" #'org-roam-dailies-find-directory)))
       :desc "List roam" "l" #'org-roam-node-find)

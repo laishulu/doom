@@ -31,7 +31,7 @@
 ;; highlight-indent-guides
 (setq highlight-indent-guides-suppress-auto-error t)
 
-(map! :g "C-s-h" #'evil-window-left
-      :g "C-s-j" #'evil-window-down
-      :g "C-s-k" #'evil-window-up
-      :g "C-s-l" #'evil-window-right)
+(map! :g "C-M-s-h" #'evil-window-left
+      :g "C-M-s-j" #'evil-window-down
+      :g "C-M-s-k" #'evil-window-up
+      :g "C-M-s-l" #'evil-window-right)
