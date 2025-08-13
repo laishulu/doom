@@ -5,19 +5,16 @@ if [[ $(uname) == 'Darwin' ]]; then
   brew install emacs-plus
   brew tap laishulu/homebrew
   brew install macism
+  # required dependencies
+  brew install git ripgrep
+  # optional dependencies
+  brew install coreutils fd
+  # Installs clang
+  xcode-select --install
+  # needed by vterm of emacs
+  brew install cmake libvterm
+  brew install editorconfig gnu-indent global
 fi
-
-# required dependencies
-brew install git ripgrep
-# optional dependencies
-brew install coreutils fd
-# Installs clang
-xcode-select --install
-
-# needed by vterm of emacs
-brew install cmake libvterm
-
-brew install editorconfig gnu-indent global
 
 rm -rf ~/.config/doom
 rm -rf ~/.config/emacs
