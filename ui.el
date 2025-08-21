@@ -18,11 +18,14 @@
 (setq doom-theme 'doom-one)
 
 ;; DON'T use (`font-family-list'), it's unreliable on Linux
-(when (find-font (font-spec :name "Sarasa Term SC Nerd"))
-  (setq doom-font (font-spec :family "Sarasa Term SC Nerd" :size 16)
-        doom-variable-pitch-font (font-spec :family "Sarasa Term SC Nerd")
-        doom-symbol-font (font-spec :family "Sarasa Term SC Nerd")
-        doom-big-font (font-spec :family "Sarasa Term SC Nerd" :size 20)))
+(let ((the-font-family "Sarasa Term SC Nerd"))
+  (when (find-font (font-spec :family the-font-family))
+    (setq doom-font (font-spec :family the-font-family :size 16)
+          doom-variable-pitch-font (font-spec :family the-font-family)
+          doom-symbol-font (font-spec :family the-font-family)
+          doom-big-font (font-spec :family the-font-family :size 20))
+    (dolist (charset '(han cjk-misc bopomofo))
+      (set-fontset-font t charset (font-spec :family the-font-family)))))
 
 (set-display-table-slot standard-display-table
                         'vertical-border
