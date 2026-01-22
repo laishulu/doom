@@ -14,6 +14,7 @@
 (setq-default fill-column 80)
 (global-display-fill-column-indicator-mode t)
 (add-hook! 'text-mode-hook 'auto-fill-mode)
+(add-hook! 'yaml-mode-hook (auto-fill-mode -1))
 
 (setq doom-theme 'doom-one)
 
