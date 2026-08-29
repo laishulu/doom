@@ -18,15 +18,29 @@
 
 (setq doom-theme 'doom-one)
 
-;; DON'T use (`font-family-list'), it's unreliable on Linux
-(let ((the-font-family "Sarasa Term SC Nerd"))
-  (when (find-font (font-spec :family the-font-family))
-    (setq doom-font (font-spec :family the-font-family :size 16)
-          doom-variable-pitch-font (font-spec :family the-font-family)
-          doom-symbol-font (font-spec :family the-font-family)
-          doom-big-font (font-spec :family the-font-family :size 20))
-    (dolist (charset '(han cjk-misc bopomofo))
-      (set-fontset-font t charset (font-spec :family the-font-family)))))
+(defun my/apply-custom-fonts (&optional frame)
+  "Apply custom fonts and CJK fontsets to graphical frames."
+  (with-selected-frame (or frame (selected-frame))
+    (when (display-graphic-p)
+      (let ((the-font-family "Sarasa Term SC Nerd"))
+        ;; Ensure the target font is installed and available
+        (when (find-font (font-spec :family the-font-family))
+          ;; Set standard Doom font variables
+          (setq doom-font (font-spec :family the-font-family :size 16)
+                doom-variable-pitch-font (font-spec :family the-font-family)
+                doom-symbol-font (font-spec :family the-font-family)
+                doom-big-font (font-spec :family the-font-family :size 20))
+          ;; Configure CJK fallback fontsets
+          (dolist (charset '(han cjk-misc bopomofo))
+            (set-fontset-font t charset (font-spec :family the-font-family)))
+          ;; Force Doom to apply font changes to the active frame
+          (doom/reload-font))))))
+
+;; Apply fonts when creating a new frame via emacsclient
+(add-hook 'after-make-frame-functions #'my/apply-custom-fonts)
+
+;; Re-apply fonts after switching or reloading themes
+(add-hook 'doom-after-load-theme-hook #'my/apply-custom-fonts)
 
 (set-display-table-slot standard-display-table
                         'vertical-border
