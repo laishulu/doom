@@ -2,6 +2,7 @@
 ;;(toggle-debug-on-error)
 (load! "encoding")
 (load! "ui")
+(load! "fonts")
 (load! "mouse")
 (load! "edit")
 (load! "tree")
