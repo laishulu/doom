@@ -2,13 +2,6 @@
 (after! evil
   (setq evil-kill-on-visual-paste nil))
 
-;; fix incompatibility with org so RET can also call the command
-(define-advice +org/dwim-at-point (:around (fn &rest args) fixed-iedit)
-  (if (and (bound-and-true-p iedit-mode)
-           (iedit-current-occurrence-string))
-      (ignore (call-interactively #'evil-multiedit-toggle-or-restrict-region))
-    (apply fn args)))
-
 (use-package! evil-pinyin
   :after (evil)
   :init
